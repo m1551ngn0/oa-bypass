@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  oa-bypass:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oa-bypass
+    ports:
+      - "3000:8080"
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/v1/models"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
