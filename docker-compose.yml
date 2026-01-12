@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   oa-bypass:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/m1551ngn0/oa-bypass:latest
     container_name: oa-bypass
     ports:
       - "3000:8080"
