@@ -18,7 +18,7 @@ pub async fn create_assistant(
 ) -> Result<Json<AssistantObject>, AppError> {
     info!("🤖 Create assistant request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .assistants()
@@ -39,7 +39,7 @@ pub async fn list_assistants(
 ) -> Result<Json<ListAssistantsResponse>, AppError> {
     info!("📋 List assistants request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .assistants()
@@ -61,7 +61,7 @@ pub async fn get_assistant(
 ) -> Result<Json<AssistantObject>, AppError> {
     info!("🤖 Get assistant request: {}", assistant_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .assistants()
@@ -84,7 +84,7 @@ pub async fn modify_assistant(
 ) -> Result<Json<AssistantObject>, AppError> {
     info!("🤖 Modify assistant request: {}", assistant_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .assistants()
@@ -106,7 +106,7 @@ pub async fn delete_assistant(
 ) -> Result<Json<DeleteAssistantResponse>, AppError> {
     info!("🤖 Delete assistant request: {}", assistant_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .assistants()

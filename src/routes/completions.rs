@@ -13,7 +13,7 @@ pub async fn chat_completions(
     info!("💬 Chat completion request: model={}", request.model);
 
     // Создаем клиента из Authorization заголовка
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .chat()
@@ -36,7 +36,7 @@ pub async fn completions(
     info!("📝 Text completion request: model={}", request.model);
 
     // Создаем клиента из Authorization заголовка
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .completions()

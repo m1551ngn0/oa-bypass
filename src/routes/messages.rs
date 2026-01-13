@@ -18,7 +18,7 @@ pub async fn create_message(
 ) -> Result<Json<MessageObject>, AppError> {
     info!("💭 Create message request in thread: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -41,7 +41,7 @@ pub async fn list_messages(
 ) -> Result<Json<ListMessagesResponse>, AppError> {
     info!("💭 List messages request in thread: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -67,7 +67,7 @@ pub async fn get_message(
         message_id, thread_id
     );
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -94,7 +94,7 @@ pub async fn modify_message(
         message_id, thread_id
     );
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()

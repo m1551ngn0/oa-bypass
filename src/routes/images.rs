@@ -11,7 +11,7 @@ pub async fn create_image(
 ) -> Result<Json<ImagesResponse>, AppError> {
     info!("🎨 Image generation request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .images()

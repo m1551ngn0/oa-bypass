@@ -11,7 +11,7 @@ pub async fn embeddings(
 ) -> Result<Json<CreateEmbeddingResponse>, AppError> {
     info!("🔢 Embedding request: model={}", request.model);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .embeddings()

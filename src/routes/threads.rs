@@ -17,7 +17,7 @@ pub async fn create_thread(
 ) -> Result<Json<ThreadObject>, AppError> {
     info!("💬 Create thread request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -39,7 +39,7 @@ pub async fn get_thread(
 ) -> Result<Json<ThreadObject>, AppError> {
     info!("💬 Get thread request: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -62,7 +62,7 @@ pub async fn modify_thread(
 ) -> Result<Json<ThreadObject>, AppError> {
     info!("💬 Modify thread request: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -84,7 +84,7 @@ pub async fn delete_thread(
 ) -> Result<Json<DeleteThreadResponse>, AppError> {
     info!("💬 Delete thread request: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()

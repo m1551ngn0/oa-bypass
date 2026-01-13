@@ -19,7 +19,7 @@ pub async fn create_run(
 ) -> Result<Json<RunObject>, AppError> {
     info!("🏃 Create run request in thread: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -42,7 +42,7 @@ pub async fn list_runs(
 ) -> Result<Json<ListRunsResponse>, AppError> {
     info!("🏃 List runs request in thread: {}", thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -65,7 +65,7 @@ pub async fn get_run(
 ) -> Result<Json<RunObject>, AppError> {
     info!("🏃 Get run request: {} in thread: {}", run_id, thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -89,7 +89,7 @@ pub async fn modify_run(
 ) -> Result<Json<RunObject>, AppError> {
     info!("🏃 Modify run request: {} in thread: {}", run_id, thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -112,7 +112,7 @@ pub async fn cancel_run(
 ) -> Result<Json<RunObject>, AppError> {
     info!("🏃 Cancel run request: {} in thread: {}", run_id, thread_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -139,7 +139,7 @@ pub async fn submit_tool_outputs(
         run_id, thread_id
     );
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()
@@ -162,7 +162,7 @@ pub async fn create_thread_and_run(
 ) -> Result<Json<RunObject>, AppError> {
     info!("🏃 Create thread and run request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, true)?;
 
     let response = client
         .threads()

@@ -15,7 +15,7 @@ pub async fn create_response(
 ) -> Result<Json<Response>, AppError> {
     info!("💬 Create response request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .responses()
@@ -37,7 +37,7 @@ pub async fn get_response(
 ) -> Result<Json<Response>, AppError> {
     info!("💬 Get response request: {}", response_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .responses()
@@ -59,7 +59,7 @@ pub async fn delete_response(
 ) -> Result<Json<DeleteResponse>, AppError> {
     info!("💬 Delete response request: {}", response_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .responses()
@@ -81,7 +81,7 @@ pub async fn cancel_response(
 ) -> Result<Json<Response>, AppError> {
     info!("💬 Cancel response request: {}", response_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .responses()

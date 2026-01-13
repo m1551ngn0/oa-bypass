@@ -54,7 +54,7 @@ pub async fn upload_file(
     let filename = filename.ok_or_else(|| AppError("Filename not provided".to_string()))?;
     let purpose = purpose.ok_or_else(|| AppError("Purpose not provided".to_string()))?;
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let file_purpose = match purpose.as_str() {
         "assistants" => FilePurpose::Assistants,
@@ -92,7 +92,7 @@ pub async fn list_files(
 ) -> Result<Json<ListFilesResponse>, AppError> {
     info!("📁 List files request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client.files().list().await.map_err(|e| {
         error!("❌ List files error: {}", e);
@@ -110,7 +110,7 @@ pub async fn get_file(
 ) -> Result<Json<OpenAIFile>, AppError> {
     info!("📁 Get file request: {}", file_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .files()
@@ -132,7 +132,7 @@ pub async fn delete_file(
 ) -> Result<Json<DeleteFileResponse>, AppError> {
     info!("📁 Delete file request: {}", file_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .files()
@@ -154,7 +154,7 @@ pub async fn get_file_content(
 ) -> Result<Vec<u8>, AppError> {
     info!("📁 Get file content request: {}", file_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     // В async-openai 0.24 нет retrieve_content, используем retrieve и возвращаем пустой вектор
     // В реальном использовании нужно обновить async-openai до новой версии

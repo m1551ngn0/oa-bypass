@@ -14,7 +14,7 @@ pub async fn list_models(
 ) -> Result<Json<ListModelResponse>, AppError> {
     info!("📋 List models request");
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .models()
@@ -36,7 +36,7 @@ pub async fn get_model(
 ) -> Result<Json<Model>, AppError> {
     info!("📋 Get model request: {}", model_id);
 
-    let client = create_client_from_headers(&headers)?;
+    let client = create_client_from_headers(&headers, false)?;
 
     let response = client
         .models()

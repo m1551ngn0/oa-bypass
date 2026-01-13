@@ -3,7 +3,11 @@ use async_openai::{config::OpenAIConfig, Client as OpenAIClient};
 use axum::http::HeaderMap;
 
 /// Извлекает токен из Authorization заголовка и создает OpenAI клиента
-pub fn create_client_from_headers(headers: &HeaderMap) -> Result<OpenAIClient<OpenAIConfig>, AppError> {
+/// 
+/// # Arguments
+/// * `headers` - HTTP заголовки запроса
+/// * `use_beta` - если true, добавляет заголовок OpenAI-Beta для Assistants API
+pub fn create_client_from_headers(headers: &HeaderMap, use_beta: bool) -> Result<OpenAIClient<OpenAIConfig>, AppError> {
     // Получаем Authorization заголовок
     let auth_header = headers
         .get("authorization")
@@ -27,6 +31,14 @@ pub fn create_client_from_headers(headers: &HeaderMap) -> Result<OpenAIClient<Op
     }
 
     // Создаем OpenAI клиента с полученным токеном
-    let config = OpenAIConfig::new().with_api_key(api_key);
+    let mut config = OpenAIConfig::new().with_api_key(api_key);
+    
+    // Если нужен Beta API, добавляем соответствующий заголовок
+    if use_beta {
+        config = config
+            .with_header("OpenAI-Beta", "assistants=v2")
+            .map_err(|e| AppError(format!("Ошибка создания конфигурации: {}", e)))?;
+    }
+    
     Ok(OpenAIClient::with_config(config))
 }
