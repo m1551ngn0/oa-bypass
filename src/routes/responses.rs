@@ -1,3 +1,7 @@
+//! Обработчики Responses API.
+//!
+//! Управление объектами responses: создание, получение, удаление и отмена.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::responses::{CreateResponse, DeleteResponse, Response};
 use axum::{
@@ -8,6 +12,16 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Создает response через OpenAI Responses API.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `CreateResponse` с параметрами ответа
+///
+/// # Returns
+/// * `Ok(Json<Response>)` - Созданный response
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn create_response(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -30,6 +44,16 @@ pub async fn create_response(
     Ok(Json(response))
 }
 
+/// Возвращает response по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `response_id` - Идентификатор response
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<Response>)` - Найденный response
+/// * `Err(AppError)` - Ошибка запроса или объект не найден
 pub async fn get_response(
     State(_state): State<Arc<AppState>>,
     Path(response_id): Path<String>,
@@ -52,6 +76,16 @@ pub async fn get_response(
     Ok(Json(response))
 }
 
+/// Удаляет response по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `response_id` - Идентификатор response
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<DeleteResponse>)` - Подтверждение удаления
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn delete_response(
     State(_state): State<Arc<AppState>>,
     Path(response_id): Path<String>,
@@ -74,6 +108,16 @@ pub async fn delete_response(
     Ok(Json(response))
 }
 
+/// Отменяет выполнение response по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `response_id` - Идентификатор response
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<Response>)` - Отмененный response
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn cancel_response(
     State(_state): State<Arc<AppState>>,
     Path(response_id): Path<String>,

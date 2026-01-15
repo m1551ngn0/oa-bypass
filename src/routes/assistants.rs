@@ -1,3 +1,7 @@
+//! Обработчики Assistants API v2.
+//!
+//! Создание, получение, изменение и удаление ассистентов OpenAI.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::assistants::{
     AssistantObject, CreateAssistantRequest, DeleteAssistantResponse, ListAssistantsResponse,
@@ -11,6 +15,24 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Создает ассистента (Assistants API v2) с параметрами из тела запроса.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения (не используется, токен приходит с клиента)
+/// * `headers` - HTTP заголовки запроса, содержащие Authorization токен
+/// * `request` - Тело запроса `CreateAssistantRequest` с настройками ассистента
+///
+/// # Returns
+/// * `Ok(Json<AssistantObject>)` - Созданный ассистент с его `id`
+/// * `Err(AppError)` - Ошибка при обращении к OpenAI API или валидации токена
+///
+/// # Пример
+/// ```bash
+/// curl -X POST http://localhost:8080/v1/assistants \
+///   -H "Content-Type: application/json" \
+///   -H "Authorization: Bearer sk-..." \
+///   -d '{"name":"My Assistant","model":"gpt-4o-mini"}'
+/// ```
 pub async fn create_assistant(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -33,6 +55,15 @@ pub async fn create_assistant(
     Ok(Json(response))
 }
 
+/// Возвращает список ассистентов текущего пользователя.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<ListAssistantsResponse>)` - Страница ассистентов (с пагинацией)
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn list_assistants(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -54,6 +85,16 @@ pub async fn list_assistants(
     Ok(Json(response))
 }
 
+/// Возвращает ассистента по `assistant_id`.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `assistant_id` - Идентификатор ассистента
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<AssistantObject>)` - Найденный ассистент
+/// * `Err(AppError)` - Ошибка запроса или ассистент не найден
 pub async fn get_assistant(
     State(_state): State<Arc<AppState>>,
     Path(assistant_id): Path<String>,
@@ -76,6 +117,17 @@ pub async fn get_assistant(
     Ok(Json(response))
 }
 
+/// Обновляет ассистента по `assistant_id`.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `assistant_id` - Идентификатор ассистента
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `ModifyAssistantRequest` с изменяемыми полями
+///
+/// # Returns
+/// * `Ok(Json<AssistantObject>)` - Обновленный ассистент
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn modify_assistant(
     State(_state): State<Arc<AppState>>,
     Path(assistant_id): Path<String>,
@@ -99,6 +151,16 @@ pub async fn modify_assistant(
     Ok(Json(response))
 }
 
+/// Удаляет ассистента по `assistant_id`.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+/// * `assistant_id` - Идентификатор ассистента для удаления
+///
+/// # Returns
+/// * `Ok(Json<DeleteAssistantResponse>)` - Подтверждение удаления
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn delete_assistant(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,

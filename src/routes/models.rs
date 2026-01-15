@@ -1,3 +1,7 @@
+//! Обработчики Models API.
+//!
+//! Позволяют получить список доступных моделей и детали конкретной модели.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::models::{ListModelResponse, Model};
 use axum::{
@@ -8,6 +12,15 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Возвращает список доступных моделей OpenAI для токена клиента.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<ListModelResponse>)` - Список моделей
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn list_models(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -29,6 +42,16 @@ pub async fn list_models(
     Ok(Json(response))
 }
 
+/// Возвращает информацию о конкретной модели по её идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `model_id` - Идентификатор модели
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<Model>)` - Детали модели
+/// * `Err(AppError)` - Ошибка запроса или модель не найдена
 pub async fn get_model(
     State(_state): State<Arc<AppState>>,
     Path(model_id): Path<String>,

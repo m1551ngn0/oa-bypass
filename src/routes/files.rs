@@ -1,3 +1,8 @@
+//! Обработчики Files API (загрузка, список, удаление, метаданные, контент).
+//!
+//! Принимает токен из Authorization заголовка и проксирует вызовы к OpenAI Files API
+//! без хранения пользовательских данных на сервере.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::files::{CreateFileRequest, DeleteFileResponse, FilePurpose, ListFilesResponse, OpenAIFile, FileInput};
 use async_openai::types::InputSource;
@@ -9,6 +14,27 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Загружает файл в OpenAI Files API через multipart/form-data.
+///
+/// Ожидает поля `file` (binary) и `purpose` (`assistants` или `fine-tune`). Токен
+/// берется из Authorization заголовка клиента. По умолчанию purpose `assistants`.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+/// * `multipart` - Поля multipart/form-data (`file`, `purpose`)
+///
+/// # Returns
+/// * `Ok(Json<OpenAIFile>)` - Метаданные загруженного файла
+/// * `Err(AppError)` - Ошибка чтения multipart или запроса к OpenAI
+///
+/// # Пример
+/// ```bash
+/// curl -X POST http://localhost:8080/v1/files \
+///   -H "Authorization: Bearer sk-..." \
+///   -F "purpose=assistants" \
+///   -F "file=@./myfile.txt"
+/// ```
 pub async fn upload_file(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -86,6 +112,15 @@ pub async fn upload_file(
     Ok(Json(response))
 }
 
+/// Возвращает список файлов в аккаунте пользователя OpenAI.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<ListFilesResponse>)` - Список файлов (с пагинацией)
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn list_files(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -103,6 +138,16 @@ pub async fn list_files(
     Ok(Json(response))
 }
 
+/// Возвращает метаданные файла по его `file_id`.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `file_id` - Идентификатор файла
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<OpenAIFile>)` - Метаданные файла
+/// * `Err(AppError)` - Ошибка запроса или файл не найден
 pub async fn get_file(
     State(_state): State<Arc<AppState>>,
     Path(file_id): Path<String>,
@@ -125,6 +170,16 @@ pub async fn get_file(
     Ok(Json(response))
 }
 
+/// Удаляет файл по `file_id`.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+/// * `file_id` - Идентификатор файла для удаления
+///
+/// # Returns
+/// * `Ok(Json<DeleteFileResponse>)` - Подтверждение удаления
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn delete_file(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -147,6 +202,16 @@ pub async fn delete_file(
     Ok(Json(response))
 }
 
+/// Возвращает содержимое файла байтами.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `file_id` - Идентификатор файла
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Vec<u8>)` - Байтовое содержимое файла
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn get_file_content(
     State(_state): State<Arc<AppState>>,
     Path(file_id): Path<String>,
@@ -156,19 +221,15 @@ pub async fn get_file_content(
 
     let client = create_client_from_headers(&headers, false)?;
 
-    // В async-openai 0.24 нет retrieve_content, используем retrieve и возвращаем пустой вектор
-    // В реальном использовании нужно обновить async-openai до новой версии
-    let _response = client
+    let bytes = client
         .files()
-        .retrieve(&file_id)
+        .content(&file_id)
         .await
         .map_err(|e| {
             error!("❌ Get file content error: {}", e);
             AppError(format!("Get file content error: {}", e))
         })?;
 
-    info!("⚠️  File content endpoint не поддерживается в async-openai 0.24");
-    Err(AppError(
-        "File content endpoint not supported in this version".to_string(),
-    ))
+    info!("✅ File content получен: {} bytes", bytes.len());
+    Ok(bytes.to_vec())
 }

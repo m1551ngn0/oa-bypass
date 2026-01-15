@@ -1,3 +1,7 @@
+//! Обработчики Messages API (Assistants v2).
+//!
+//! Создание, получение, изменение и листинг сообщений внутри thread.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::assistants::{
     CreateMessageRequest, ListMessagesResponse, MessageObject, ModifyMessageRequest,
@@ -10,6 +14,17 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Создает сообщение внутри thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread, в котором создается сообщение
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `CreateMessageRequest` с содержимым сообщения
+///
+/// # Returns
+/// * `Ok(Json<MessageObject>)` - Созданное сообщение
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn create_message(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
@@ -34,6 +49,16 @@ pub async fn create_message(
     Ok(Json(response))
 }
 
+/// Возвращает список сообщений в thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<ListMessagesResponse>)` - Список сообщений (с пагинацией)
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn list_messages(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
@@ -57,6 +82,17 @@ pub async fn list_messages(
     Ok(Json(response))
 }
 
+/// Возвращает конкретное сообщение по `message_id` в рамках thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `message_id` - Идентификатор сообщения
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<MessageObject>)` - Найденное сообщение
+/// * `Err(AppError)` - Ошибка запроса или сообщение не найдено
 pub async fn get_message(
     State(_state): State<Arc<AppState>>,
     Path((thread_id, message_id)): Path<(String, String)>,
@@ -83,6 +119,18 @@ pub async fn get_message(
     Ok(Json(response))
 }
 
+/// Обновляет сообщение по `message_id` в рамках thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `message_id` - Идентификатор сообщения
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `ModifyMessageRequest` с изменениями
+///
+/// # Returns
+/// * `Ok(Json<MessageObject>)` - Обновленное сообщение
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn modify_message(
     State(_state): State<Arc<AppState>>,
     Path((thread_id, message_id)): Path<(String, String)>,

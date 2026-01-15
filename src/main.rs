@@ -1,3 +1,9 @@
+//! OpenAI API Bypass Server
+//!
+//! Высокопроизводительный прокси-сервер для OpenAI API на Rust.
+//! Принимает токен от клиента в Authorization заголовке и перенаправляет
+//! запросы к официальному OpenAI API без хранения конфиденциальных данных.
+
 mod error;
 mod routes;
 mod state;
@@ -8,6 +14,10 @@ use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use tracing::info;
 
+/// Точка входа приложения.
+///
+/// Инициализирует логирование, создает состояние приложения, настраивает роутер
+/// с CORS middleware и запускает HTTP сервер на порту 8080.
 #[tokio::main]
 async fn main() {
     // Инициализация логирования

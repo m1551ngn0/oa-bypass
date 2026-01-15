@@ -1,3 +1,7 @@
+//! Модуль маршрутизации.
+//!
+//! Содержит все обработчики эндпоинтов и конфигурацию роутера приложения.
+
 pub mod assistants;
 pub mod completions;
 pub mod embeddings;
@@ -13,6 +17,25 @@ use crate::state::AppState;
 use axum::{routing::{delete, get, post}, Router};
 use std::sync::Arc;
 
+/// Создает и конфигурирует главный роутер приложения.
+///
+/// Регистрирует все эндпоинты для различных сервисов OpenAI API:
+/// - Health checks
+/// - Completions (chat и legacy)
+/// - Embeddings
+/// - Models
+/// - Images (DALL-E)
+/// - Assistants API (assistants, threads, messages, runs)
+/// - Files API
+/// - Responses API
+///
+/// # Arguments
+///
+/// * `state` - Общее состояние приложения, передаваемое во все обработчики
+///
+/// # Returns
+///
+/// Сконфигурированный `Router` с зарегистрированными маршрутами
 pub fn create_router(state: Arc<AppState>) -> Router {
     Router::new()
         // Health check
@@ -77,6 +100,14 @@ pub fn create_router(state: Arc<AppState>) -> Router {
         .with_state(state)
 }
 
+/// Обработчик health check эндпоинта.
+///
+/// Возвращает простую строку, подтверждающую работоспособность сервера.
+/// Используется для мониторинга и проверки доступности сервиса.
+///
+/// # Returns
+///
+/// Статическая строка "OpenAI API Server is running"
 async fn health_check() -> &'static str {
     "OpenAI API Server is running"
 }

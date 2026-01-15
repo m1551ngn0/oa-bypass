@@ -1,3 +1,8 @@
+//! Обработчики Runs API (Assistants v2).
+//!
+//! Управление выполнениями (runs) ассистентов в рамках thread: создание, получение,
+//! отмена, обновление и отправка результатов инструментов.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::assistants::{
     CreateRunRequest, CreateThreadAndRunRequest, ListRunsResponse, ModifyRunRequest, RunObject,
@@ -11,6 +16,17 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Создает run в указанном thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `CreateRunRequest` с инструкциями/параметрами запуска
+///
+/// # Returns
+/// * `Ok(Json<RunObject>)` - Созданный run
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn create_run(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
@@ -35,6 +51,16 @@ pub async fn create_run(
     Ok(Json(response))
 }
 
+/// Возвращает список runs в thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<ListRunsResponse>)` - Список runs (с пагинацией)
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn list_runs(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
@@ -58,6 +84,17 @@ pub async fn list_runs(
     Ok(Json(response))
 }
 
+/// Возвращает run по идентификатору в рамках thread.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `run_id` - Идентификатор run
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<RunObject>)` - Найденный run
+/// * `Err(AppError)` - Ошибка запроса или run не найден
 pub async fn get_run(
     State(_state): State<Arc<AppState>>,
     Path((thread_id, run_id)): Path<(String, String)>,
@@ -81,6 +118,18 @@ pub async fn get_run(
     Ok(Json(response))
 }
 
+/// Обновляет run по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `run_id` - Идентификатор run
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `ModifyRunRequest` с изменениями
+///
+/// # Returns
+/// * `Ok(Json<RunObject>)` - Обновленный run
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn modify_run(
     State(_state): State<Arc<AppState>>,
     Path((thread_id, run_id)): Path<(String, String)>,
@@ -105,6 +154,17 @@ pub async fn modify_run(
     Ok(Json(response))
 }
 
+/// Отменяет run по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `run_id` - Идентификатор run
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<RunObject>)` - Отмененный run
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn cancel_run(
     State(_state): State<Arc<AppState>>,
     Path((thread_id, run_id)): Path<(String, String)>,
@@ -128,6 +188,18 @@ pub async fn cancel_run(
     Ok(Json(response))
 }
 
+/// Отправляет результаты работы инструментов (tool outputs) для run.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `run_id` - Идентификатор run
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `SubmitToolOutputsRunRequest` с данными инструментов
+///
+/// # Returns
+/// * `Ok(Json<RunObject>)` - Обновленный run после передачи результатов
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn submit_tool_outputs(
     State(_state): State<Arc<AppState>>,
     Path((thread_id, run_id)): Path<(String, String)>,
@@ -155,6 +227,16 @@ pub async fn submit_tool_outputs(
     Ok(Json(response))
 }
 
+/// Создает thread и сразу же run (удобно для single-call сценариев).
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `CreateThreadAndRunRequest` с параметрами thread и run
+///
+/// # Returns
+/// * `Ok(Json<RunObject>)` - Созданный run (и thread) с идентификатором
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn create_thread_and_run(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,

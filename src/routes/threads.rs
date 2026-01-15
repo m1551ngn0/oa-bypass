@@ -1,3 +1,7 @@
+//! Обработчики Threads API (Assistants v2).
+//!
+//! Создание, получение, изменение и удаление потоков (threads) ассистентов.
+
 use crate::{error::AppError, state::AppState, utils::create_client_from_headers};
 use async_openai::types::assistants::{
     CreateThreadRequest, DeleteThreadResponse, ModifyThreadRequest, ThreadObject,
@@ -10,6 +14,16 @@ use axum::{
 use std::sync::Arc;
 use tracing::{error, info};
 
+/// Создает новый thread для Assistants API v2.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `CreateThreadRequest` с начальными сообщениями/параметрами
+///
+/// # Returns
+/// * `Ok(Json<ThreadObject>)` - Созданный thread с его `id`
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn create_thread(
     State(_state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -32,6 +46,16 @@ pub async fn create_thread(
     Ok(Json(response))
 }
 
+/// Возвращает thread по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<ThreadObject>)` - Найденный thread
+/// * `Err(AppError)` - Ошибка запроса или thread не найден
 pub async fn get_thread(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
@@ -54,6 +78,17 @@ pub async fn get_thread(
     Ok(Json(response))
 }
 
+/// Обновляет thread по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `headers` - Authorization заголовок клиента
+/// * `request` - `ModifyThreadRequest` с полями для обновления
+///
+/// # Returns
+/// * `Ok(Json<ThreadObject>)` - Обновленный thread
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn modify_thread(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
@@ -77,6 +112,16 @@ pub async fn modify_thread(
     Ok(Json(response))
 }
 
+/// Удаляет thread по идентификатору.
+///
+/// # Arguments
+/// * `_state` - Состояние приложения
+/// * `thread_id` - Идентификатор thread
+/// * `headers` - Authorization заголовок клиента
+///
+/// # Returns
+/// * `Ok(Json<DeleteThreadResponse>)` - Подтверждение удаления
+/// * `Err(AppError)` - Ошибка запроса или авторизации
 pub async fn delete_thread(
     State(_state): State<Arc<AppState>>,
     Path(thread_id): Path<String>,
